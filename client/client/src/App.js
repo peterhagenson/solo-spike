@@ -1,27 +1,44 @@
 
 import './App.css';
 import io from "socket.io-client";
-import {useEffect} from 'react';
+import {useEffect, useState} from 'react';
 const socket = io.connect("http://localhost:3001");
 
 function App() {
 
+  //Room State
+  const [room, setRoom] = useState("");
+
+  //Message States
+  const [message, setMessage] = useState("");
+  const [messageReceived, setMessageReceived] = useState("");
+
+  const joinRoom = () => {
+    if (room !== "") {
+      socket.emit("join_room", room)
+    }
+  }
+
+
   const sendMessage = () => {
-    socket.emit("send_message", {
-      message: "Hello"
-    })
+    socket.emit("send_message", {message, room});
   };
 
   useEffect(() => {
     socket.on("receive_message", (data) => {
-      alert(data.message);
+      setMessageReceived(data.message);
     })
   }, [socket])
 
   return (
     <div className="App">
-      <input placeholder="message"/>
+      <input onChange={(event) => (setRoom(event.target.value))} placeholder="room number"/>
+      <button onClick={joinRoom}>Join Room</button>
+      <br/>
+      <input onChange={(event) => (setMessage(event.target.value))} placeholder="message"/>
       <button onClick={sendMessage}>Send Message</button>
+      <h1>Message:</h1>
+      {messageReceived}
      
     </div>
   );

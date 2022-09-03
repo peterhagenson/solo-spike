@@ -17,8 +17,15 @@ const io = new Server(server, {
 io.on("connection", (socket) => {
     console.log(`User Connected: ${socket.id}` )
 
+//specifying the room your joining
+//"join_room" is an event that was created on the front end
+    socket.on("join_room", (data) => {
+        //data is the room id
+        socket.join(data);
+    })
+
     socket.on("send_message", (data) => {
-        socket.broadcast.emit("receive_message", data)
+        socket.to(data.room).emit("receive_message", data)
     })
 })
 
